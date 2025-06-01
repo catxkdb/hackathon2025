@@ -221,6 +221,10 @@ nav button.active::after {
     gap: 2rem;
 }
 
+.stock-link {
+    text-decoration: none;
+}
+
 /* Badges Section */
 .badges {
     background: var(--card-background);
