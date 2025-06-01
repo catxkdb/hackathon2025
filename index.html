@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashCon - Financial Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>CashCon</h1>
+        <div class="user-stats">
+            <span class="points">🏆 3,750 Points</span>
+            <span class="coins">💰 1,500 Coins</span>
+            <button class="profile-button" onclick="toggleProfileDropdown()">
+                <span class="profile-icon">👤</span>
+                <div class="profile-dropdown">
+                    <div class="profile-header">
+                        <h3>Your Profile</h3>
+                        <div class="level-badge">
+                            <span class="level">Level 8</span>
+                            <div class="exp-bar">
+                                <div class="exp-progress" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">🎯</span>
+                            <span class="stat-value">Level 8</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">⭐</span>
+                            <span class="stat-value">75% to Level 9</span>
+                        </div>
+                    </div>
+                    <div class="profile-badges">
+                        <h4>Recent Badges</h4>
+                        <div class="badge-list">
+                            <!-- Badges will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <nav>
+            <button data-tab="dashboard" class="active">Dashboard</button>
+            <button data-tab="expenses">Expenses</button>
+            <button data-tab="earnings">Earnings</button>
+            <button data-tab="quests">Quests & Challenges</button>
+            <button data-tab="leaderboard">Leaderboard</button>
+        </nav>
+
+        <section id="dashboard" class="tab-content active">
+            <div class="dashboard-header">
+                <h2>Financial Overview</h2>
+                <div class="streaks">
+                    <div class="streak">
+                        <span class="streak-icon">🔥</span>
+                        <span class="streak-count">0</span>
+                        <span class="streak-label">Day Saving Streak</span>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            <div class="insights-container">
+                <!-- Insights will be dynamically added here -->
+            </div>
+        </section>
+
+        <section id="earnings" class="tab-content">
+            <div class="earnings-container">
+                <div class="earnings-header">
+                    <h2>Earnings Overview</h2>
+                </div>
+                <div class="earnings-grid">
+                    <div class="chart-container">
+                        <canvas id="earningsChart"></canvas>
+                    </div>
+                    <div class="earnings-summary">
+                        <div class="summary-card">
+                            <h3>Monthly Earnings</h3>
+                            <p class="amount">$0.00</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Total Savings</h3>
+                            <p class="amount">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="expenses" class="tab-content">
+            <div class="expenses-container">
+                <div class="expense-form">
+                    <h3>Add New Expense</h3>
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label for="expenseTitle">Title</label>
+                            <input type="text" id="expenseTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseAmount">Amount</label>
+                            <input type="number" id="expenseAmount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseCategory">Category</label>
+                            <select id="expenseCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="food">Food</option>
+                                <option value="transport">Transport</option>
+                                <option value="utilities">Utilities</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method</label>
+                            <select id="paymentMethod" required>
+                                <option value="">Select Payment Method</option>
+                                <option value="cash">Cash</option>
+                                <option value="credit">Credit Card</option>
+                                <option value="debit">Debit Card</option>
+                                <option value="transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiptUpload">Upload Receipt</label>
+                            <div id="dropZone" class="drop-zone">
+                                <span class="drop-zone-prompt">Drop receipt here or click to upload</span>
+                                <input type="file" id="receiptUpload" accept="image/*" class="drop-zone-input">
+                            </div>
+                            <div id="receiptPreview" class="receipt-preview"></div>
+                        </div>
+                        <button type="button" onclick="addExpense()">Add Expense</button>
+                    </form>
+                </div>
+                <div class="expense-list">
+                    <h3>Recent Expenses</h3>
+                    <div id="expensesList">
+                        <!-- Expenses will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="quests" class="tab-content">
+            <div class="quests-container">
+                <div class="active-quests">
+                    <h3>Active Quests</h3>
+                    <div class="quest-list">
+                        <!-- Quests will be added dynamically -->
+                    </div>
+                </div>
+
+                <div class="challenges">
+                    <h3>Weekly Challenges</h3>
+                    <div class="challenge-list weekly">
+                        <!-- Weekly challenges will be added dynamically -->
+                    </div>
+
+                    <h3>Monthly Challenges</h3>
+                    <div class="challenge-list monthly">
+                        <!-- Monthly challenges will be added dynamically -->
+                    </div>
+                </div>
+
+                <div class="badges">
+                    <h3>Your Badges</h3>
+                    <div class="badge-grid">
+                        <!-- Badges will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="avatar" class="tab-content">
+            <div class="avatar-container">
+                <div class="avatar-preview">
+                    <img src="image.png" alt="Your Avatar" class="user-avatar" />
+                    <div class="avatar-info">
+                        <h3>Level 1</h3>
+                        <p>0 Points</p>
+                    </div>
+                </div>
+
+                <div class="avatar-customization">
+                    <div class="shop-tabs">
+                        <button class="shop-tab active" data-category="outfits">Outfits</button>
+                        <button class="shop-tab" data-category="accessories">Accessories</button>
+                        <button class="shop-tab" data-category="hairstyles">Hairstyles</button>
+                    </div>
+                    <div class="shop-items">
+                        <!-- Shop items will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="leaderboard" class="tab-content">
+            <div class="leaderboard-container">
+                <div class="leaderboard-tabs">
+                    <button class="leaderboard-tab active" data-board="global">Global</button>
+                    <button class="leaderboard-tab" data-board="monthly">Monthly</button>
+                    <button class="leaderboard-tab" data-board="friends">Friends</button>
+                </div>
+                <div class="leaderboard-list">
+                    <!-- Enhanced leaderboard entries will be added dynamically -->
+                </div>
+            </div>
+
+            <!-- User Profile Modal -->
+            <div class="user-profile-modal">
+                <div class="modal-content">
+                    <button class="close-modal" onclick="closeUserProfile()">&times;</button>
+                    <div class="modal-header">
+                        <img src="image.png" alt="User Avatar" class="modal-avatar" />
+                        <div class="modal-user-info">
+                            <h3 class="modal-username">Username</h3>
+                            <div class="level-badge">
+                                <span class="level">Level 1</span>
+                                <div class="exp-bar">
+                                    <div class="exp-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">🏆</span>
+                            <span class="stat-value points">0 Points</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">💰</span>
+                            <span class="stat-value coins">0 Coins</span>
+                        </div>
+                    </div>
+                    <div class="modal-badges">
+                        <h4>Badges</h4>
+                        <div class="badge-grid">
+                            <!-- Badges will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification Templates -->
+    <template id="badge-notification">
+        <div class="notification badge-notification">
+            <div class="badge-icon"></div>
+            <div class="notification-content">
+                <h4>New Badge Unlocked!</h4>
+                <p class="badge-name"></p>
+                <p class="badge-description"></p>
+            </div>
+        </div>
+    </template>
+
+    <template id="level-notification">
+        <div class="notification level-notification">
+            <div class="level-icon">⭐</div>
+            <div class="notification-content">
+                <h4>Level Up!</h4>
+                <p class="level-message"></p>
+            </div>
+        </div>
+    </template>
+
+    <template id="quest-complete-notification">
+        <div class="notification quest-notification">
+            <div class="quest-icon">✨</div>
+            <div class="notification-content">
+                <h4>Quest Complete!</h4>
+                <p class="quest-name"></p>
+                <div class="quest-rewards"></div>
+            </div>
+        </div>
+    </template>
+
+    <div id="tradeModal" class="modal">
+        <!-- Trade modal content will be dynamically added here -->
+    </div>
+</body>
+</html>
